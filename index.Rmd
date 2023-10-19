@@ -1,0 +1,265 @@
+---
+title: "The Evolution of the Foraging Gene Across Drosophilidae"
+author: <br/><br/><br/><br/><br/><br/> Dylan Padilla <br/> Applied Phylogenetics - Fall 2023 <br/><br/> `r icon_style(fontawesome("envelope", style = "solid"), scale = 1, fill = "skyblue")` dpadil10@asu.edu | `r icon_style(fontawesome("link", style = "solid"), scale = 1, fill = "skyblue")` https://dylanpadilla.netlify.app/
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: ['default', 'default.css']
+    seal: true
+    nature:
+      ratio: '16:9'
+      slideNumberFormat: '%current%' 
+      highlightStyle: ir-black
+      highlightLines: true
+      countIncrementalSlides: true
+---
+
+```{r setup, include = FALSE}
+
+library(rmarkdown)
+library(xaringan)
+library(xaringanExtra)
+library(knitr)
+library(icons)
+library(emo)
+
+options(htmltools.dir.version = FALSE)
+
+## preset code chunk options
+
+knitr::opts_chunk$set(dpi = 300,            # ensures high resolution images
+                      echo = TRUE,         # FALSE: code chunks don't show
+                      warning = FALSE,      # FALSE: suppresses warning messages
+                      error = FALSE,       # FALSE: Suppresses error messages
+                      fig.align = "center")
+
+```
+
+
+
+```{r xaringan-slide-tone, echo=FALSE}
+
+xaringanExtra::use_slide_tone()
+
+```
+
+
+# Outline
+
+<br>
+
+- Why the foraging gene
+
+- Building the tree
+
+--
+
+1. Methods
+
+--
+
+2. Results and Discussion
+
+
+
+
+---
+
+
+</br><img align = "right" src = "images/for-gene.png" height = "100px" width = "1130px"></br>
+<img align = "left" src = "images/larva2.gif" height = "110px" width = "220px"></br></br></br></br>
+
+<img align = "center" src = "images/paths.png" height = "300px" width = "600px">
+
+
+---
+
+</br>
+
+<img align = "center" src = "images/orthoDB.png" height = "500px" width = "1000px">
+
+---
+
+</br>
+
+<img align = "center" src = "images/fasta.png" height = "500px" width = "1000px">
+
+---
+
+# Aligning
+
+<img align = "center" src = "images/muscle_page.png" height = "400px" width = "800px">
+
+
+`/Users/dylanpadilla/Downloads/for-phylogeny-project/muscle5.1.macos_intel64 -align spp.drosophilid.fasta -output spp.drosophilid.aln.fasta`
+
+
+---
+
+# Trimming
+
+<img align = "center" src = "images/trimAL_page.png" height = "400px" width = "800px">
+
+`/Users/dylanpadilla/Downloads/for-phylogeny-project/trimAl/source/trimal -in spp.drosophilid.aln.fasta -out spp.drosophilid.aln.trm.fasta -automated1 -htmlout spp.drosophilid.aln.trm.html`
+
+
+---
+
+# HTML output
+
+<img align = "center" src = "images/html_output.png" height = "500px" width = "900px">
+
+---
+
+# Jalview
+
+<img align = "center" src = "images/trimmed_alignment.png" height = "500px" width = "800px">
+
+---
+
+# Phylogenetic model in RevBayes
+
+
+<img align = "center" src = "images/GTR_model.png" height = "380px" width = "1000px">
+
+---
+
+# Bayesian MCMC analysis of the model
+
+</br>
+
+.pull-left[
+
+<img align = "center" src = "images/posterior_density.png" height = "300px" width = "500px">
+
+]
+
+.pull-right[
+
+
+<img align = "center" src = "images/trace.png" height = "300px" width = "500px">
+
+]
+
+
+---
+
+# Molecular phylogeny
+
+.pull-left[
+
+<img align = "center" src = "images/drosophilid_molecular.tre.png" height = "500px" width = "510px">
+
+]
+
+.pull-right[
+
+
+<img align = "center" src = "images/drosophilid_molecular_node_labels.tre.png" height = "500px" width = "510px">
+
+]
+
+
+
+---
+
+
+# Time-calibrated Tree in RevBayes
+
+</br>
+
+.pull-left[
+
+<img align = "center" src = "images/error.png" height = "350px" width = "510px">
+
+]
+
+.pull-right[
+
+<br>
+
+<img align = "center" src = "images/homero.gif" height = "250px" width = "400px">
+
+]
+
+
+
+---
+
+# Time-calibrated Tree in R
+
+</br>
+
+```{r}
+
+# Converting a molecular species phylogeny into a time-calibrated ultrametric species tree
+
+# Library
+library(ape)
+library(phytools)
+
+# Read in the molecular phylogeny
+
+moltree <- read.nexus("/Users/dpadil10/Dropbox (ASU)/BIO598-Phylogenetics/PhyloProject/output/drosophilid_for_GTR_MAP.tre")
+
+rooted_tree <- root(moltree, outgroup = "Scaptodrosophila_lebanonensis", resolve.root = TRUE)
+
+```
+
+---
+
+# TimeTree
+
+.pull-left[
+
+</br>
+
+<img align = "center" src = "images/calculated_divergence.png" height = "160px" width = "650px">
+
+]
+
+.pull-right[
+
+
+<img align = "center" src = "images/divergence_time.png" height = "300px" width = "700px">
+
+]
+
+
+---
+
+```{r}
+
+# Provide root calibration age of 30 million years
+calib <- makeChronosCalib(rooted_tree, node = "root", age.min = 30)
+
+# Use the chronos function to convert the tree with the age constraint
+timetree <- chronos(rooted_tree, calibration = calib, lambda = 1,
+                    model = "discrete", control = chronos.control(nb.rate.cat = 1))
+
+
+# Check that the result is indeed ultrametric
+is.ultrametric(timetree)
+
+```
+
+---
+
+
+```{r, out.width="45%"}
+
+plotTree(timetree, ftype = "i", fsize = 0.5, mar = c(3.5, 1, 1, 0))
+axisPhylo()
+mtext("time (mya)", side = 1, line = 2.2)
+
+
+```
+
+
+---
+class:center
+
+</br>
+
+<img align = "center" src = "images/yay.gif" height = "400px" width = "400px">
+
