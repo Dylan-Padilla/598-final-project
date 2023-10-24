@@ -119,8 +119,10 @@ xaringanExtra::use_slide_tone()
 
 # Phylogenetic model in RevBayes
 
+<center>
+<img align = "center" src = "images/dayhoff_model.png" height = "500px" width = "450px">
+</center>
 
-<img align = "center" src = "images/GTR_model.png" height = "380px" width = "1000px">
 
 ---
 
